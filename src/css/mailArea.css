@@ -1,0 +1,228 @@
+
+
+/*Styles for add emails container
+    -------------------------------------------------------------------*/
+
+.mail-area {
+    padding: 0;
+    padding-top: 6px;
+    cursor: text;
+    text-align: center;
+    min-height: 50px;
+}
+
+    .mail-area label {
+        float: left;
+    }
+
+    .mail-area .email-input {
+        float: left;
+        height: 24px;
+        padding-left: 3px;
+        width: 50px;
+    }
+
+    .mail-area input[type="text"]:focus {
+         border-width: 0;
+         outline: none;
+    }
+
+    .mail-area input[type="text"]{
+        font-family:"Trebuchet MS", Verdana, Geneva, Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        border-width: 0;
+    }
+
+    .mail-area .email-container {
+        margin: 4px;
+        padding: 0;
+        height: 23px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    
+    .mail-area a.email-remove {
+        float: left;
+        height: 23px;
+        width: 20px;
+        clear: right;
+        display: block;
+    }
+
+    .mail-area a.email-edit {
+        float: left;
+        height: 23px;
+        width: 20px;
+        clear: right;
+    }
+
+    .dots {
+        display: none;
+        height: 21px;
+        position: absolute;
+        right: 20px;
+        top: 5px;
+        z-index: 20;
+        background: none;
+        color: black;
+    }
+
+    .add-emails-container .email-remove-icon {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        margin: 3px 3px 0 3px;
+        opacity: 1;
+        background-image: url(Images/Icons/icons.png);
+        background-position: 0 -560px;
+    }
+
+    .add-emails-container .email-edit-icon {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        margin: 3px 3px 0 3px;
+        opacity: 1;
+        background-image: url(Images/Icons/icons.png);
+        background-position: 0 -1624px;
+    }
+
+
+    .mail-area a.email-remove:hover, .mail-area a.email-edit:hover {
+        background: rgb(75, 160, 210);
+    }
+    .mail-area a.email-remove:active, .mail-area a.email-edit:active {
+        background: none;
+    }
+
+    .mail-area .email-list{
+        clear: both;
+        margin-bottom: 10px;
+    }
+
+    .mail-area ul.email-list{
+        list-style-type: none;
+        border: solid 1px #D3D3D3;
+        overflow: auto;
+        padding: 0px;
+        padding-bottom: 5px;
+        min-height: 30px;
+    }
+
+        .mail-area ul.email-list li {
+            position: relative;
+            float: left;
+            overflow: visible;
+        }
+
+
+
+    /* New */
+    .mail-area .new .email-input {
+        background: none;        
+    }
+    .mail-area .new .email-remove{
+        display: none;
+    }
+    .mail-area .new{
+        background: none;
+    }
+        .mail-area .new .dots
+        {
+            display: none;
+        }
+
+
+     /* Inactive */
+    .mail-area .inactive .email-input {
+        background: none;        
+    }
+    .mail-area .inactive .email-remove{
+        display: none;
+    }
+    .mail-area .inactive{
+        background: none;
+        display: block;
+    }
+        .mail-area .inactive .dots
+        {
+            display: none;
+        }
+
+     /* Approved */
+    .mail-area .approved .email-input {
+        background: none;
+        display: block;    
+    }
+    .mail-area .approved{
+        background: rgb(113, 202, 255);
+        position: relative;
+    }
+        .mail-area .approved .dots{
+        background: rgb(113, 202, 255);
+    }
+
+    /* UnApproved */
+    .mail-area .unapproved .email-input {
+        background: none;
+        display: block;
+    }
+    .mail-area .unapproved{
+        background: rgb(250, 179, 179);
+        position: relative;
+        /*border: solid 1px red;*/
+    }
+    .mail-area .unapproved a.email-remove:hover {
+        background: rgb(254, 134, 134);
+    }
+        .mail-area .unapproved .dots{
+        background: rgb(250, 179, 179);
+        /*border: solid 1px red;*/
+    }
+
+
+     /* Edit */
+    .mail-area .edit .email-input {
+        background: none;
+        display: block;
+    }
+    .mail-area .edit .email-remove{
+        display: none;
+    }
+    .mail-area .edit{
+        position: relative;
+    }
+        .mail-area .edit .dots
+        {
+            display: none;
+        }
+
+    .directorate-name {
+        font-size: 10px;
+        color: #817e7e;
+    }
+
+
+    /*Colleague form*/
+
+
+
+
+
+    .mail-area .email-text {
+        float: left;
+        height: 24px;
+        line-height: 24px;
+        padding-left: 3px;
+        font-family:"Trebuchet MS", Verdana, Geneva, Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        white-space: nowrap;
+	    overflow: hidden;
+        padding-right: 4px;
+        color: black;
+    }
+
+    .colleague-mail-area{
+        cursor:default;
+    }
