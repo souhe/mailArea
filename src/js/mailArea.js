@@ -1,4 +1,4 @@
-var EmailSelector = function (template, emailList, maxInputWidth, styleInactive, styleEdit, styleApproved, styleUnApproved, autocompleteUrl) {
+var EmailSelector = function (template, emailList, maxInputWidth, styleInactive, styleEdit, styleApproved, styleUnApproved, autocompleteUrl, events) {
     this.template = template.clone();
     template.remove();
     this.$emailList = emailList;
@@ -8,15 +8,21 @@ var EmailSelector = function (template, emailList, maxInputWidth, styleInactive,
     this.maxInputWidth = maxInputWidth;
     this.validate = this.validateEmail;
     this.autocompleteUrl = autocompleteUrl;
+    this.events = events;
     if(autocompleteUrl) {        
         this.validate = this.validateColleague; 
     }
 
     // Styles
-    this.styleInactive = styleInactive;
-    this.styleApproved = styleApproved;
-    this.styleEdit = styleEdit;
-    this.styleUnApproved = styleUnApproved;
+    this.styleInactive = "inactive";
+    this.styleApproved = "approved";
+    this.styleEdit = "edit";
+    this.styleUnApproved = "unapproved";
+    
+    this.AdditionnalStyleInactive = styleInactive;
+    this.AdditionnalStyleApproved = styleApproved;
+    this.AdditionnalStyleEdit = styleEdit;
+    this.AdditionnalStyleUnApproved = styleUnApproved;
     this.stylesAll = this.styleInactive + " " + this.styleApproved + " " + this.styleEdit + " " + this.styleUnApproved;
 
     this.addEmptyEmailField();
@@ -137,6 +143,11 @@ EmailSelector.prototype.addEmptyEmailField = function () {
 };
 
 EmailSelector.prototype.removeEmail = function (field) {
+    if(field.hasClass(this.styleApproved)){
+        if(typeof this.events.onRemove === "function"){
+            this.events.onRemove(field.find('input').val());
+        }
+    }
     field.remove();
     this.fieldRemoved = true;
 };
@@ -149,9 +160,23 @@ EmailSelector.prototype.addEmail = function (email) {
             setTimeout(function() {
                 curr.removeEmail(email.parents('.email-container'));
             }, 200);
-        } else {
+        } else {  
             if (this.validate(email)) {
+                var value = email.val();
+                var lastProperVal = email.data("lastProperVal");
+                
                 email.parents('.email-container').removeClass(this.stylesAll).addClass(this.styleApproved);
+                if(!lastProperVal){
+                    if(typeof this.events.onAdd === "function"){
+                        this.events.onAdd(value);
+                    }
+                }else if(value !== lastProperVal) {
+                    if(typeof this.events.onAdd === "function"){
+                        this.events.onChange(lastProperVal, value);
+                    }
+                }
+                
+                email.data("lastProperVal", value)
             } else {
                 email.parents('.email-container').removeClass(this.stylesAll).addClass(this.styleUnApproved);
             }
@@ -223,7 +248,6 @@ EmailSelector.prototype.validateLength = function (input) {
         whiteSpace: 'nowrap'
     });
 
-    //if (val === (val = input.val())) { return; }
     var val = input.val();
     // Enter new content into testSubject
     var escaped = val.replace(/&/g, '&amp;').replace(/\s/g, ' ').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -247,10 +271,10 @@ var methods = {
         var settings = $.extend({
             width: this.width(),
             minHeight: this.height(),
-            styleInactive: 'inactive',
-            styleEdit: 'edit',
-            styleApproved: 'approved',
-            styleUnApproved: 'unapproved',
+            styleInactive: '',
+            styleEdit: '',
+            styleApproved: '',
+            styleUnApproved: '',
             autocompleteUrl: null,
             onAdd: function(email){return null;},
             onRemove: function(email){return null;},
@@ -266,7 +290,13 @@ var methods = {
 
         $emailList.css("min-height", settings.height);
         $emailList.width(settings.width);
-        methods.settings.emails = new EmailSelector($template, $emailList, settings.width - 40, settings.styleInactive, settings.styleEdit, settings.styleApproved, settings.styleUnApproved, settings.autocompleteUrl);
+        var events = {
+            onAdd: settings.onAdd,
+            onRemove: settings.onRemove,
+            onChange: settings.onChange,
+            onSomethingChange: settings.onSomethingChange
+        }
+        methods.settings.emails = new EmailSelector($template, $emailList, settings.width - 40, settings.styleInactive, settings.styleEdit, settings.styleApproved, settings.styleUnApproved, settings.autocompleteUrl, events);
         this.data("emails", methods.settings.emails);
     },
     get: function() {

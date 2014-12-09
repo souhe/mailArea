@@ -13,7 +13,11 @@
     
     <script>
         $(document).ready(function(){
-          $('#mailarea').mailArea(); 
+          $('#mailarea').mailArea({
+              onChange: function(oldEmail, newEmail){ console.log("CHANGE", oldEmail + " -> " + newEmail);},
+              onAdd: function(newEmail){ console.log("ADD", newEmail);},
+              onRemove: function(email){ console.log("REMOVE", email);}
+          }); 
         });
     </script>
     

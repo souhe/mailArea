@@ -181,9 +181,11 @@
         background: rgb(113, 202, 255);
         position: relative;
     }
+/*
         .mail-area .approved .dots{
         background: rgb(113, 202, 255);
     }
+*/
 
     /* UnApproved */
     .mail-area .unapproved .email-input {
@@ -193,15 +195,13 @@
     .mail-area .unapproved{
         background: rgb(250, 179, 179);
         position: relative;
-        /*border: solid 1px red;*/
     }
     .mail-area .unapproved a.email-remove:hover {
         background: rgb(254, 134, 134);
     }
-        .mail-area .unapproved .dots{
-        background: rgb(250, 179, 179);
-        /*border: solid 1px red;*/
-    }
+        .mail-area .dots{
+            background: inherit;
+        }
 
 
      /* Edit */
