@@ -29,11 +29,14 @@ gulp.task('build-less', function(){
 });
 
 gulp.task('copy', function() {
-    gulp.src('src/index.html')
+    gulp.src('src/demo.html')
       .pipe(gulp.dest('dist'));
     
     gulp.src('src/css/*.*')
       .pipe(gulp.dest('./dist/css'));
+    
+    gulp.src('src/font/*.*')
+      .pipe(gulp.dest('./dist/font'));
     
 });
 

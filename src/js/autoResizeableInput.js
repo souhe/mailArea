@@ -65,4 +65,4 @@ var methods = {
     }
 };
 
-module.extends = methods;
+module.exports = methods;

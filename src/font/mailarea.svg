@@ -1,0 +1,15 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg">
+<metadata>Copyright (C) 2014 by original authors @ fontello.com</metadata>
+<defs>
+<font id="mailarea" horiz-adv-x="1000" >
+<font-face font-family="mailarea" font-weight="400" font-stretch="normal" units-per-em="1000" ascent="850" descent="-150" />
+<missing-glyph horiz-adv-x="1000" />
+<glyph glyph-name="cancel" unicode="&#xe800;" d="m799 116l-156-157-234 235-235-235-156 157 234 234-234 234 156 157 235-235 234 235 156-157-234-234z" horiz-adv-x="817" />
+<glyph glyph-name="pencil" unicode="&#xe801;" d="m879 764q32-32 32-79t-33-79l-422-421q-16 60-56 101t-101 56l421 423q32 32 79 32t80-33z m-559-716l-302-145 144 304q32 32 79 32t80-33 32-79-33-79z" horiz-adv-x="928" />
+<glyph glyph-name="ok" unicode="&#xe802;" d="m352-10l-334 333 158 160 176-174 400 401 159-160z" horiz-adv-x="928" />
+<glyph glyph-name="at" unicode="&#xe803;" d="m851 127l-163 0q-54 0-88 46-60-47-136-47-92 0-157 65t-66 158 66 158 157 66l224 0 0-334 90 0 1-1q20 54 20 113 0 139-98 236t-237 98-236-98-98-237 98-237 236-97q141 0 237 98l79-79q-131-132-315-132t-316 132-131 315 131 316 316 131 315-131 131-315q0-120-60-224z m-275 222l0 112-112 0q-45 0-78-33t-33-79 33-78 79-33 78 33 33 78z" horiz-adv-x="928" />
+</font>
+</defs>
+</svg>

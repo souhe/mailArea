@@ -251,11 +251,15 @@ var methods = {
             styleEdit: 'edit',
             styleApproved: 'approved',
             styleUnApproved: 'unapproved',
-            autocompleteUrl: null
+            autocompleteUrl: null,
+            onAdd: function(email){return null;},
+            onRemove: function(email){return null;},
+            onChange: function(oldEmail, newEmail){return null;},
+            onSomethingChange: function(emails){return null;}
         }, o);
 
         this.addClass('mail-area');
-        var $template = $('<li class="email-container template"><input type="text" class="email-input"/><div class="dots">...</div><a href="#" class="email-remove"><div class="email-remove-icon"></div></a></li>');
+        var $template = $('<li class="email-container template"><input type="text" class="email-input"/><div class="dots">...</div><a href="#" class="email-remove"><div class="icon-email-remove"></div></a></li>');
 
         var $emailList = $('<ul/>').addClass('email-list');
         $emailList.appendTo(this);
@@ -274,4 +278,4 @@ var methods = {
     }
 };
 
-module.extends = methods;
+module.exports = methods;
