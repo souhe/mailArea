@@ -108,7 +108,7 @@ EmailSelector.prototype.addEmptyEmailField = function () {
         });
         field.find('input.email-input').focus(function (e) {
             //set new field as edited 
-            if (!curr.$lastEdited || $(this).get(0) !== curr.$lastEdited.get(0)) {
+            if(!$(this).parents('.email-container').hasClass(curr.styleEdit)){
                 curr.$editedField = $(this).parents('.email-container');
                 curr.$editedField.removeClass(curr.stylesAll).addClass(curr.styleEdit).find(".dots").hide();
                 curr.addEmptyEmailField();
@@ -116,9 +116,7 @@ EmailSelector.prototype.addEmptyEmailField = function () {
         });
 
         field.find('input:text').focusout(function () {
-            curr.$lastEdited = $(this);
             curr.addEmail($(this));
-            curr.$lastEdited = $(this);
         });
 
         field.find('input').keypress(function (e) {
