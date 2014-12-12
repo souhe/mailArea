@@ -16,7 +16,8 @@
           $('#mailarea').mailArea({
               onChange: function(oldEmail, newEmail){ console.log("CHANGE", oldEmail + " -> " + newEmail);},
               onAdd: function(newEmail){ console.log("ADD", newEmail);},
-              onRemove: function(email){ console.log("REMOVE", email);}
+              onRemove: function(email){ console.log("REMOVE", email);},
+              emails: ["admin@admin.pl", "a@asd.asd"]
           }); 
         });
     </script>

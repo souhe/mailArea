@@ -58,7 +58,9 @@ var methods = {
                         }
                 };
             testSubject.insertAfter(input);
+            
             $(this).bind('keydown keyup blur update', check);
+            check();
         });
 
         return this;

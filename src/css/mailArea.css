@@ -99,18 +99,6 @@
         padding: 3px 0;
     }
 
-
-    .add-emails-container .email-edit-icon {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        margin: 3px 3px 0 3px;
-        opacity: 1;
-        background-image: url(Images/Icons/icons.png);
-        background-position: 0 -1624px;
-    }
-
-
     .mail-area a.email-remove:hover, .mail-area a.email-edit:hover {
         background: rgb(75, 160, 210);
     }

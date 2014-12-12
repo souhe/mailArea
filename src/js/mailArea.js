@@ -1,4 +1,4 @@
-var EmailSelector = function (template, emailList, maxInputWidth, styleInactive, styleEdit, styleApproved, styleUnApproved, autocompleteUrl, events) {
+var EmailSelector = function (template, emailList, maxInputWidth, styleInactive, styleEdit, styleApproved, styleUnApproved, events, emails) {
     this.template = template.clone();
     template.remove();
     this.$emailList = emailList;
@@ -7,12 +7,7 @@ var EmailSelector = function (template, emailList, maxInputWidth, styleInactive,
     this.fieldRemoved = false;
     this.maxInputWidth = maxInputWidth;
     this.validate = this.validateEmail;
-    this.autocompleteUrl = autocompleteUrl;
     this.events = events;
-    if(autocompleteUrl) {        
-        this.validate = this.validateColleague; 
-    }
-
     // Styles
     this.styleInactive = "inactive";
     this.styleApproved = "approved";
@@ -25,9 +20,14 @@ var EmailSelector = function (template, emailList, maxInputWidth, styleInactive,
     this.AdditionnalStyleUnApproved = styleUnApproved;
     this.stylesAll = this.styleInactive + " " + this.styleApproved + " " + this.styleEdit + " " + this.styleUnApproved;
 
+    if(emails && emails.length > 0){
+        for (var i = 0; i < emails.length; i++){
+            this.addEmailField(emails[i]);
+        }
+    }
     this.addEmptyEmailField();
     this.$editedField = null;
-
+    
     // Event handlers
     var curr = this;
     this.$emailList.click(function () {
@@ -37,69 +37,26 @@ var EmailSelector = function (template, emailList, maxInputWidth, styleInactive,
 
 };
 
-EmailSelector.prototype.AddAoutocompleteToField = function(input) {
-    var curr = this;
-    input.autocomplete({
-        minLength: 2,
+EmailSelector.prototype.addEmailField = function(email){
+    var field = this.addEmptyEmailField(email);
+    var input = field.find('input');
+    this.addEmail(input, true);
+}
 
-        source: function(request, response) {
-            $.ajax({
-                url: curr.autocompleteUrl,
-                dataType: "json",
-                data: {
-                    phrase: request.term
-                },
-                success: function(data) {
-                    response($.map(data, function(item) {
-                        var fullName = item.TitleName + " " + item.FirstName + " " + item.SurName;
-                        if (item.TrustLevelName == null) {
-                            item.TrustLevelName = "";
-                        }
-                        return {
-                            data: item,
-                            label: fullName,
-                            value: fullName,
-                            desc: item.TrustLevelName
-                        };
-                    }));
-                }
-            });
-        },
-
-        select: function (event, ui) {
-            input.val(ui.item.value);
-            input.data("code", ui.item.data.Code);
-            curr.$newField.focus();
-        },
-        autoFocus: true,
-        search: function () {
-            input.data("code", null);
-        }
-    }).data("autocomplete")._renderItem = function (ul, item) {
-        return $("<li>")
-            .data("item.autocomplete", item)
-            .append("<a>" + item.label + '<p class="directorate-name">' + item.desc + "</p></a>")
-            .appendTo(ul);
-    };
-};
-
-EmailSelector.prototype.addEmptyEmailField = function () {
+EmailSelector.prototype.addEmptyEmailField = function (email) {
     var count = this.$emailList.children('.' + this.styleInactive).length;
     if (count === 0) {
         var field = this.template.clone().addClass(this.styleInactive);
         field.appendTo(this.$emailList);
 
         this.$newField = field.find('input');
-
+        this.$newField.val(email);
+        
         field.find('input:text').autoGrowInput({
             comfortZone: 15,
             minWidth: 30,
             maxWidth: this.maxInputWidth
         });
-        if(this.autocompleteUrl) { //if autocomplete is set
-          console.log("lol");
-            this.AddAoutocompleteToField(field.find('input:text'));
-        }
 
         //event handlers:
         var curr = this;
@@ -122,11 +79,9 @@ EmailSelector.prototype.addEmptyEmailField = function () {
         field.find('input').keypress(function (e) {
             var code = (e.keyCode ? e.keyCode : e.which),
                 condition = false;
-            if(curr.autocompleteUrl) {
-                condition = code == 13 || code == 44 || code == 59 || code == 11; //11
-            }else {
-                condition = code == 13 || code == 44 || code == 59;
-            }
+
+            condition = code == 13 || code == 44 || code == 59;
+
             if (condition) {
                 e.preventDefault();
                 curr.$newField.focus();
@@ -136,6 +91,8 @@ EmailSelector.prototype.addEmptyEmailField = function () {
         field.find('.email-remove').click(function () {
             curr.removeEmail(field);
         });
+        
+        return field;
     }
     return $('.email-container .' + this.styleInactive);
 };
@@ -150,7 +107,7 @@ EmailSelector.prototype.removeEmail = function (field) {
     this.fieldRemoved = true;
 };
 
-EmailSelector.prototype.addEmail = function (email) {
+EmailSelector.prototype.addEmail = function (email, isInitial) {
     var curr = this;
     email.val($.trim(email.val()));
     if (email) {
@@ -165,11 +122,11 @@ EmailSelector.prototype.addEmail = function (email) {
                 
                 email.parents('.email-container').removeClass(this.stylesAll).addClass(this.styleApproved);
                 if(!lastProperVal){
-                    if(typeof this.events.onAdd === "function"){
+                    if(!isInitial && typeof this.events.onAdd === "function"){
                         this.events.onAdd(value);
                     }
                 }else if(value !== lastProperVal) {
-                    if(typeof this.events.onAdd === "function"){
+                    if(!isInitial && typeof this.events.onAdd === "function"){
                         this.events.onChange(lastProperVal, value);
                     }
                 }
@@ -201,64 +158,10 @@ EmailSelector.prototype.getEmails = function () {
     return this.emailList;
 };
 
-EmailSelector.prototype.getColleagues = function () {
-    var colleaguesList = [];
-    var curr = this;
-    this.$emailList.children('.email-container').each(function () {
-        var input = $(this).find('input');
-        if (curr.validate(input)) {
-            colleaguesList.push(input.data("code"));
-        }
-    });
-    return colleaguesList;
-};
-
 EmailSelector.prototype.validateEmail = function (input) {
     var email = input.val();
     var regex = /^((((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))|([^<>@]+\<(((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))\>))$/i;
     return regex.test(email);
-};
-
-EmailSelector.prototype.validateColleague = function (input) {
-    var code = input.data("code");
-
-    if (code) {
-        // guid length
-        if (code.length == 36) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    return false;
-};
-
-EmailSelector.prototype.validateLength = function (input) {
-    var testSubject = $('<tester/>').css({
-        position: 'absolute',
-        top: -9999,
-        left: -9999,
-        width: 'auto',
-        fontSize: input.css('fontSize'),
-        fontFamily: input.css('fontFamily'),
-        fontWeight: input.css('fontWeight'),
-        letterSpacing: input.css('letterSpacing'),
-        whiteSpace: 'nowrap'
-    });
-
-    var val = input.val();
-    // Enter new content into testSubject
-    var escaped = val.replace(/&/g, '&amp;').replace(/\s/g, ' ').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    testSubject.html(escaped);
-
-    var testerWidth = testSubject.width(),
-        currentWidth = input.width();
-
-    if (testerWidth < currentWidth) {
-        return true;
-    }
-
-    return false;
 };
 
 var methods = {
@@ -267,13 +170,13 @@ var methods = {
     },
     init: function(o) {
         var settings = $.extend({
-            width: this.width(),
+            emails: [],
+            width: this.width()
             minHeight: this.height(),
             styleInactive: '',
             styleEdit: '',
             styleApproved: '',
             styleUnApproved: '',
-            autocompleteUrl: null,
             onAdd: function(email){return null;},
             onRemove: function(email){return null;},
             onChange: function(oldEmail, newEmail){return null;},
@@ -294,15 +197,11 @@ var methods = {
             onChange: settings.onChange,
             onSomethingChange: settings.onSomethingChange
         }
-        methods.settings.emails = new EmailSelector($template, $emailList, settings.width - 40, settings.styleInactive, settings.styleEdit, settings.styleApproved, settings.styleUnApproved, settings.autocompleteUrl, events);
+        methods.settings.emails = new EmailSelector($template, $emailList, settings.width - 40, settings.styleInactive, settings.styleEdit, settings.styleApproved, settings.styleUnApproved, events, settings.emails);
         this.data("emails", methods.settings.emails);
     },
     get: function() {
         return this.data("emails").getEmails();
-    },
-    getCodes: function () {
-        var emails = this.data("emails");
-        return emails.getColleagues();
     }
 };
 
