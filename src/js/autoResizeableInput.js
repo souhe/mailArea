@@ -57,7 +57,11 @@ var methods = {
                             }
                         }
                 };
-            testSubject.insertAfter(input);
+            if($(this).is(":visible")){   
+                testSubject.insertAfter(input);
+            }else{
+                $('body').append(testSubject);
+            }
             
             $(this).bind('keydown keyup blur update', check);
             check();

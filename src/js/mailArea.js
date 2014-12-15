@@ -37,11 +37,22 @@ var EmailSelector = function (template, emailList, maxInputWidth, styleInactive,
 
 };
 
+EmailSelector.prototype.reload = function(emails){
+    this.$emailList.children('.email-container').remove();
+    if(emails && emails.length > 0){
+        for (var i = 0; i < emails.length; i++){
+            this.addEmailField(emails[i]);
+        }
+    }
+    this.addEmptyEmailField();
+    this.$editedField = null;
+};
+
 EmailSelector.prototype.addEmailField = function(email){
     var field = this.addEmptyEmailField(email);
     var input = field.find('input');
     this.addEmail(input, true);
-}
+};
 
 EmailSelector.prototype.addEmptyEmailField = function (email) {
     var count = this.$emailList.children('.' + this.styleInactive).length;
@@ -98,12 +109,12 @@ EmailSelector.prototype.addEmptyEmailField = function (email) {
 };
 
 EmailSelector.prototype.removeEmail = function (field) {
+    field.remove();
     if(field.hasClass(this.styleApproved)){
         if(typeof this.events.onRemove === "function"){
             this.events.onRemove(field.find('input').val());
         }
     }
-    field.remove();
     this.fieldRemoved = true;
 };
 
@@ -171,7 +182,7 @@ var methods = {
     init: function(o) {
         var settings = $.extend({
             emails: [],
-            width: this.width()
+            width: this.width(),
             minHeight: this.height(),
             styleInactive: '',
             styleEdit: '',
@@ -202,6 +213,9 @@ var methods = {
     },
     get: function() {
         return this.data("emails").getEmails();
+    },
+    reload: function(emails){
+        this.data("emails").reload(emails);
     }
 };
 
