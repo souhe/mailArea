@@ -208,6 +208,10 @@
             display: none;
         }
 
+    .mail-area .in-progress{
+        background: red;
+    }
+
     .directorate-name {
         font-size: 10px;
         color: #817e7e;

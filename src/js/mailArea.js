@@ -1,4 +1,4 @@
-var EmailSelector = function (template, emailList, maxInputWidth, styleInactive, styleEdit, styleApproved, styleUnApproved, events, emails) {
+var MailArea = function (template, emailList, maxInputWidth, styleInactive, styleEdit, styleApproved, styleUnApproved, events, emails) {
     this.template = template.clone();
     template.remove();
     this.$emailList = emailList;
@@ -8,7 +8,7 @@ var EmailSelector = function (template, emailList, maxInputWidth, styleInactive,
     this.maxInputWidth = maxInputWidth;
     this.validate = this.validateEmail;
     this.events = events;
-    // Styles
+
     this.styleInactive = "inactive";
     this.styleApproved = "approved";
     this.styleEdit = "edit";
@@ -28,16 +28,13 @@ var EmailSelector = function (template, emailList, maxInputWidth, styleInactive,
     this.addEmptyEmailField();
     this.$editedField = null;
     
-    // Event handlers
     var curr = this;
     this.$emailList.click(function () {
         curr.$newField.focus();
     });
-
-
 };
 
-EmailSelector.prototype.reload = function(emails){
+MailArea.prototype.reload = function(emails){
     this.$emailList.children('.email-container').remove();
     if(emails && emails.length > 0){
         for (var i = 0; i < emails.length; i++){
@@ -48,13 +45,13 @@ EmailSelector.prototype.reload = function(emails){
     this.$editedField = null;
 };
 
-EmailSelector.prototype.addEmailField = function(email){
+MailArea.prototype.addEmailField = function(email){
     var field = this.addEmptyEmailField(email);
     var input = field.find('input');
     this.addEmail(input, true);
 };
 
-EmailSelector.prototype.addEmptyEmailField = function (email) {
+MailArea.prototype.addEmptyEmailField = function (email) {
     var count = this.$emailList.children('.' + this.styleInactive).length;
     if (count === 0) {
         var field = this.template.clone().addClass(this.styleInactive);
@@ -108,7 +105,7 @@ EmailSelector.prototype.addEmptyEmailField = function (email) {
     return $('.email-container .' + this.styleInactive);
 };
 
-EmailSelector.prototype.removeEmail = function (field) {
+MailArea.prototype.removeEmail = function (field) {
     field.remove();
     if(field.hasClass(this.styleApproved)){
         if(typeof this.events.onRemove === "function"){
@@ -118,7 +115,7 @@ EmailSelector.prototype.removeEmail = function (field) {
     this.fieldRemoved = true;
 };
 
-EmailSelector.prototype.addEmail = function (email, isInitial) {
+MailArea.prototype.addEmail = function (email, isInitial) {
     var curr = this;
     email.val($.trim(email.val()));
     if (email) {
@@ -126,6 +123,10 @@ EmailSelector.prototype.addEmail = function (email, isInitial) {
             setTimeout(function() {
                 curr.removeEmail(email.parents('.email-container'));
             }, 200);
+            
+            if(typeof this.events.onRemove === "function"){
+                this.events.onRemove(email.val());
+            }
         } else {  
             if (this.validate(email)) {
                 var value = email.val();
@@ -137,6 +138,8 @@ EmailSelector.prototype.addEmail = function (email, isInitial) {
                         this.events.onAdd(value);
                     }
                 }else if(value !== lastProperVal) {
+                    
+                    
                     if(!isInitial && typeof this.events.onAdd === "function"){
                         this.events.onChange(lastProperVal, value);
                     }
@@ -157,7 +160,7 @@ EmailSelector.prototype.addEmail = function (email, isInitial) {
     }
 };
 
-EmailSelector.prototype.getEmails = function () {
+MailArea.prototype.getEmails = function () {
     this.emailList = [];
     var curr = this;
     this.$emailList.children('.email-container').each(function () {
@@ -169,11 +172,43 @@ EmailSelector.prototype.getEmails = function () {
     return this.emailList;
 };
 
-EmailSelector.prototype.validateEmail = function (input) {
+MailArea.prototype.getEmailsIfValid = function(){
+    var emailList = [];
+    var curr = this;
+    this.$emailList.children('.email-container').each(function () {
+        var input = $(this).find('input');
+        if (!curr.validate(input)) {
+            emailList.push(input.val().toString());
+            return false;
+        }
+    });
+    return emailList;
+};
+
+MailArea.prototype.validateEmail = function (input) {
     var email = input.val();
     var regex = /^((((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))|([^<>@]+\<(((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))\>))$/i;
     return regex.test(email);
 };
+
+function resolveEvent(event, args){
+    var deferred = $.Deferred();
+    
+    if(typeof event === "function"){
+        var args = [].splice.apply(arguments, [1,  arguments.length -1]);
+        var promise = event.apply(this, args);
+        if(typeof promise.then === 'function'){
+            deferred.notify();
+            promise.then(function(){
+                deferred.resolve();
+            }, function(){
+                deferred.reject();
+            })
+        }
+    }
+    
+    return deferred.promise();
+}
 
 var methods = {
     settings: {
@@ -208,7 +243,7 @@ var methods = {
             onChange: settings.onChange,
             onSomethingChange: settings.onSomethingChange
         }
-        methods.settings.emails = new EmailSelector($template, $emailList, settings.width - 40, settings.styleInactive, settings.styleEdit, settings.styleApproved, settings.styleUnApproved, events, settings.emails);
+        methods.settings.emails = new MailArea($template, $emailList, settings.width - 40, settings.styleInactive, settings.styleEdit, settings.styleApproved, settings.styleUnApproved, events, settings.emails);
         this.data("emails", methods.settings.emails);
     },
     get: function() {
@@ -216,6 +251,9 @@ var methods = {
     },
     reload: function(emails){
         this.data("emails").reload(emails);
+    },
+    getEmailsIfValid: function(){
+        return this.data("emails").getEmailsIfValid();
     }
 };
 
