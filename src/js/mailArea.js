@@ -133,16 +133,20 @@ MailArea.prototype.addEmail = function (email, isInitial) {
                 var lastProperVal = email.data("lastProperVal");
                 
                 email.parents('.email-container').removeClass(this.stylesAll).addClass(this.styleApproved);
-                if(!lastProperVal){
-                    if(!isInitial && typeof this.events.onAdd === "function"){
-                        this.events.onAdd(value);
+                if(!lastProperVal ){ 
+                    if(!isInitial){
+                        resolveEvent(this.events.onAdd, value).progress(function(){
+                             email.parents('.email-container').addClass("in-progress");
+                        }).then(function(){
+                             email.parents('.email-container').removeClass("in-progress");
+                        });
                     }
                 }else if(value !== lastProperVal) {
-                    
-                    
-                    if(!isInitial && typeof this.events.onAdd === "function"){
-                        this.events.onChange(lastProperVal, value);
-                    }
+                    resolveEvent(this.events.onChange, lastProperVal, value).progress(function(){
+                         email.parents('.email-container').addClass("in-progress");
+                    }).then(function(){
+                         email.parents('.email-container').removeClass("in-progress");
+                    });
                 }
                 
                 email.data("lastProperVal", value)
