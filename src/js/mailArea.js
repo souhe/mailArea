@@ -73,7 +73,7 @@ MailArea.prototype.addEmptyEmailField = function (email) {
         });
         field.find('input.email-input').focus(function (e) {
             //set new field as edited 
-            if(!$(this).parents('.email-container').hasClass(curr.styleEdit)){
+            if(!$(this).parents('.email-container').hasClass(curr.styleEdit) && !$(this).parents('.email-container').hasClass('in-progress')){ //TODO: move in-progress to options
                 curr.$editedField = $(this).parents('.email-container');
                 curr.$editedField.removeClass(curr.stylesAll).addClass(curr.styleEdit).find(".dots").hide();
                 curr.addEmptyEmailField();
@@ -106,13 +106,24 @@ MailArea.prototype.addEmptyEmailField = function (email) {
 };
 
 MailArea.prototype.removeEmail = function (field) {
-    field.remove();
-    if(field.hasClass(this.styleApproved)){
-        if(typeof this.events.onRemove === "function"){
-            this.events.onRemove(field.find('input').val());
+    var curr = this;
+    if(!field.hasClass('in-progress')){
+        var lastProperVal = field.find("input").data("lastProperVal");
+        if(field.hasClass(curr.styleApproved)  || (field.hasClass(curr.styleEdit) && lastProperVal)){
+            var val = field.find('input').val() || lastProperVal;
+            resolveEvent(curr.events.onRemove, val).progress(function(){ 
+                field.hide();
+            }).then(function(){
+                field.remove();
+            }, function(){
+                field.find('input').val(lastProperVal);
+                field.removeClass(curr.stylesAll).addClass(curr.styleApproved).show();
+            });
+        }else{
+            field.remove();
         }
+        this.fieldRemoved = true;
     }
-    this.fieldRemoved = true;
 };
 
 MailArea.prototype.addEmail = function (email, isInitial) {
@@ -126,29 +137,37 @@ MailArea.prototype.addEmail = function (email, isInitial) {
             setTimeout(function() {
                 curr.removeEmail(email.parents('.email-container'));
             }, 200);
-            
-            if(lastProperVal && typeof this.events.onRemove === "function"){
-                this.events.onRemove(value);
-            }
+//            
+//            if(lastProperVal && typeof this.events.onRemove === "function"){
+//                this.events.onRemove(value); //TODO
+//            }
         } else {  
             if (this.validate(email)) {
                 email.parents('.email-container').removeClass(this.stylesAll).addClass(this.styleApproved);
                 if(!lastProperVal ){ 
                     if(!isInitial){
                         resolveEvent(this.events.onAdd, value).progress(function(){
-                             email.parents('.email-container').addClass("in-progress");
+                            email.attr("disabled", "disabled");
+                            email.parents('.email-container').addClass("in-progress");
                         }).then(function(){
-                             email.parents('.email-container').removeClass("in-progress");
+                            email.parents('.email-container').removeClass("in-progress");
+                            email.attr("disabled", false);
+                        }, function(){
+                            email.parents('.email-container').remove();
                         });
                     }
                 }else if(value !== lastProperVal) {
                     resolveEvent(this.events.onChange, lastProperVal, value).progress(function(){
-                         email.parents('.email-container').addClass("in-progress");
+                        email.attr("disabled", "disabled");
+                        email.parents('.email-container').addClass("in-progress");
                     }).then(function(){
                          email.parents('.email-container').removeClass("in-progress");
+                    }, function(){
+                        email.parents('.email-container').removeClass("in-progress");
+                        email.val(lastProperVal);
+                    }).always(function(){
+                        email.attr("disabled", false);
                     });
-
-
                 }
                 
                 email.data("lastProperVal", value);

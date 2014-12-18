@@ -35,7 +35,17 @@
                   
                   return deferred.promise();
               },
-              onRemove: function(email){ console.log("REMOVE", email);},
+              onRemove: function(email){ 
+                  
+                  var deferred = $.Deferred();
+
+                  console.log("REMOVE", email);
+                  setTimeout(function(){
+                      deferred.reject();
+                  }, 2000);
+
+                  return deferred.promise();
+              },
               emails: ["admin@admin.pl", "a@asd.asd"]
           }); 
         });

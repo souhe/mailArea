@@ -208,8 +208,14 @@
             display: none;
         }
 
+    /* in progress */
     .mail-area .in-progress{
-        background: red;
+        border-bottom: dashed 2px gray;
+        cursor: progress;
+    }
+
+    .mail-area .in-progress a.email-remove:hover{
+       cursor: progress; 
     }
 
     .directorate-name {
