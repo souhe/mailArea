@@ -1,5 +1,6 @@
 var mailArea = require('./mailArea.js');
 var autoResizeableInput = require('./autoResizeableInput.js');
+var betterMailArea = require('./betterMailArea.js');
 
 $.fn.autoGrowInput = function (method) {
     //mathods calling logic
