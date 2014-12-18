@@ -20,7 +20,7 @@ var MailArea = function (template, emailList, maxInputWidth, styleInactive, styl
     this.AdditionnalStyleUnApproved = styleUnApproved;
     this.stylesAll = this.styleInactive + " " + this.styleApproved + " " + this.styleEdit + " " + this.styleUnApproved;
 
-    if(emails && emails.length > 0){
+    if (emails && emails.length > 0) {
         for (var i = 0; i < emails.length; i++){
             this.addEmailField(emails[i]);
         }
@@ -118,20 +118,20 @@ MailArea.prototype.removeEmail = function (field) {
 MailArea.prototype.addEmail = function (email, isInitial) {
     var curr = this;
     email.val($.trim(email.val()));
+    var value = email.val();
+    var lastProperVal = email.data("lastProperVal");
+    
     if (email) {
-        if (email.val() === "") { //if email is empty
+        if (value === "") { //if email is empty
             setTimeout(function() {
                 curr.removeEmail(email.parents('.email-container'));
             }, 200);
             
-            if(typeof this.events.onRemove === "function"){
-                this.events.onRemove(email.val());
+            if(lastProperVal && typeof this.events.onRemove === "function"){
+                this.events.onRemove(value);
             }
         } else {  
             if (this.validate(email)) {
-                var value = email.val();
-                var lastProperVal = email.data("lastProperVal");
-                
                 email.parents('.email-container').removeClass(this.stylesAll).addClass(this.styleApproved);
                 if(!lastProperVal ){ 
                     if(!isInitial){
@@ -147,9 +147,11 @@ MailArea.prototype.addEmail = function (email, isInitial) {
                     }).then(function(){
                          email.parents('.email-container').removeClass("in-progress");
                     });
+
+
                 }
                 
-                email.data("lastProperVal", value)
+                email.data("lastProperVal", value);
             } else {
                 email.parents('.email-container').removeClass(this.stylesAll).addClass(this.styleUnApproved);
             }
@@ -179,14 +181,17 @@ MailArea.prototype.getEmails = function () {
 MailArea.prototype.getEmailsIfValid = function(){
     var emailList = [];
     var curr = this;
+    var isValid = true;
     this.$emailList.children('.email-container').each(function () {
         var input = $(this).find('input');
         if (!curr.validate(input)) {
             emailList.push(input.val().toString());
-            return false;
+            if(input.val()){
+                isValid = false;
+            }
         }
     });
-    return emailList;
+    return isValid ? emailList : false;
 };
 
 MailArea.prototype.validateEmail = function (input) {
@@ -195,22 +200,22 @@ MailArea.prototype.validateEmail = function (input) {
     return regex.test(email);
 };
 
-function resolveEvent(event, args){
+function resolveEvent(event, args) {
     var deferred = $.Deferred();
-    
-    if(typeof event === "function"){
-        var args = [].splice.apply(arguments, [1,  arguments.length -1]);
+
+    if (typeof event === "function") {
+        var args = [].splice.apply(arguments, [1, arguments.length - 1]);
         var promise = event.apply(this, args);
-        if(typeof promise.then === 'function'){
+        if (typeof promise.then === 'function') {
             deferred.notify();
-            promise.then(function(){
+            promise.then(function () {
                 deferred.resolve();
-            }, function(){
+            }, function () {
                 deferred.reject();
             })
         }
     }
-    
+
     return deferred.promise();
 }
 
