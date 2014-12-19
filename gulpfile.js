@@ -3,12 +3,21 @@ var webpack = require('gulp-webpack');
 var concat = require('gulp-concat');
 var less = require('gulp-less');
 var webpackConf = require('./webpack.config.js');
+var webpackConfDeploy = require('./webpackDeploy.config.js');
 var connect = require('gulp-connect');
 
 gulp.task("webpack", function() {
     return gulp.src('src/js/main.js')
         .pipe(webpack( webpackConf ))
         .pipe(concat('main.js'))
+        .pipe(gulp.dest('dist/js'))
+        .pipe(connect.reload());
+});
+
+gulp.task("webpack-min", function() {
+    return gulp.src('src/js/main.js')
+        .pipe(webpack( webpackConfDeploy ))
+        .pipe(concat('main.min.js'))
         .pipe(gulp.dest('dist/js'))
         .pipe(connect.reload());
 });
@@ -41,6 +50,8 @@ gulp.task('copy', function() {
 });
 
 gulp.task('default', ['build-less', 'webpack', 'copy']);
+
+gulp.task('build', ['build-less', 'webpack-min', 'copy']);
 
 gulp.task('watch', function() {
     connect.server({

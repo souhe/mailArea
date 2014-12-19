@@ -106,12 +106,15 @@ MailArea.prototype.addEmptyEmailField = function (email) {
 };
 
 MailArea.prototype.removeEmail = function (field) {
-    field.remove();
-    if(field.hasClass(this.styleApproved)){
-        if(typeof this.events.onRemove === "function"){
-            this.events.onRemove(field.find('input').val());
+    var curr = this;
+    var lastProperVal = field.find("input").data("lastProperVal");
+    if(field.hasClass(curr.styleApproved)  || (field.hasClass(curr.styleEdit) && lastProperVal)){
+        var val = field.find('input').val() || lastProperVal;
+        if(typeof curr.events.onRemove === "function"){
+            curr.events.onRemove(val);
         }
     }
+    field.remove();
     this.fieldRemoved = true;
 };
 
@@ -123,10 +126,6 @@ MailArea.prototype.addEmail = function (email, isInitial) {
             setTimeout(function() {
                 curr.removeEmail(email.parents('.email-container'));
             }, 200);
-            
-            if(typeof this.events.onRemove === "function"){
-                this.events.onRemove(email.val());
-            }
         } else {  
             if (this.validate(email)) {
                 var value = email.val();
@@ -138,9 +137,7 @@ MailArea.prototype.addEmail = function (email, isInitial) {
                         this.events.onAdd(value);
                     }
                 }else if(value !== lastProperVal) {
-                    
-                    
-                    if(!isInitial && typeof this.events.onAdd === "function"){
+                    if(!isInitial && typeof this.events.onChange === "function"){
                         this.events.onChange(lastProperVal, value);
                     }
                 }
@@ -175,14 +172,18 @@ MailArea.prototype.getEmails = function () {
 MailArea.prototype.getEmailsIfValid = function(){
     var emailList = [];
     var curr = this;
+    var isValid = true;
     this.$emailList.children('.email-container').each(function () {
         var input = $(this).find('input');
         if (!curr.validate(input)) {
+            if(input.val()){
+                isValid = false;
+            }
+        }else{
             emailList.push(input.val().toString());
-            return false;
         }
     });
-    return emailList;
+    return isValid ? emailList : false;
 };
 
 MailArea.prototype.validateEmail = function (input) {
